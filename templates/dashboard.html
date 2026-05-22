@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Lab Hours Tracker{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="card">
+    <div class="muted">Status</div>
+    {% if open_session %}
+      <div class="big">In session</div>
+      <div class="muted">Started {{ open_session.start_at|date:"M j, g:i a" }} ({{ open_session.duration_hours|floatformat:2 }}h so far)</div>
+      <form action="{% url 'stop_session' %}" method="post" style="margin-top:12px">
+        {% csrf_token %}
+        <button class="danger" type="submit">Stop session</button>
+      </form>
+    {% else %}
+      <div class="big">Idle</div>
+      <form action="{% url 'start_session' %}" method="post" style="margin-top:12px">
+        {% csrf_token %}
+        <label for="notes">Notes (optional)</label>
+        <input id="notes" type="text" name="notes" maxlength="280" placeholder="What are you working on?">
+        <div style="margin-top:8px"><button type="submit">Start session</button></div>
+      </form>
+    {% endif %}
+  </div>
+  <div class="card">
+    <div class="muted">Total hours logged</div>
+    <div class="big">{{ total_hours }}</div>
+    <div class="muted">Across {{ recent_sessions|length }} most recent sessions shown below</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="muted" style="margin-bottom:8px">Weekly pattern · last 8 weeks (hours by weekday)</div>
+  <canvas id="weeklyChart" height="120"></canvas>
+</div>
+
+<div class="card">
+  <div class="muted" style="margin-bottom:8px">Recent sessions</div>
+  <table>
+    <thead><tr><th>Start</th><th>End</th><th>Duration</th><th>Notes</th></tr></thead>
+    <tbody>
+      {% for s in recent_sessions %}
+      <tr>
+        <td>{{ s.start_at|date:"M j, Y g:i a" }}</td>
+        <td>{% if s.end_at %}{{ s.end_at|date:"M j, Y g:i a" }}{% else %}<span class="muted">in progress</span>{% endif %}</td>
+        <td>{% if s.end_at %}{{ s.duration_hours|floatformat:2 }}h{% else %}-{% endif %}</td>
+        <td>{{ s.notes|default:"N/A" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" class="muted">No sessions yet. Click "Start session" above.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+{{ weekday_labels|json_script:"weekday-labels" }}
+{{ chart_data|json_script:"chart-data" }}
+<script>
+  const labels = JSON.parse(document.getElementById("weekday-labels").textContent);
+  const data = JSON.parse(document.getElementById("chart-data").textContent);
+  new Chart(document.getElementById("weeklyChart"), {
+    type: "bar",
+    data: { labels, datasets: [{ label: "Hours", data, backgroundColor: "#2563eb" }] },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: "Hours" } } }
+    }
+  });
+</script>
+{% endblock %}

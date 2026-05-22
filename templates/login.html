@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Log in · Lab Hours Tracker{% endblock %}
+{% block content %}
+<div class="card" style="max-width:400px;margin:60px auto">
+  <h2 style="margin-top:0">Log in</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    {% endfor %}
+    {{ form.non_field_errors }}
+    <div style="margin-top:16px"><button type="submit">Log in</button></div>
+  </form>
+  <div class="muted" style="margin-top:16px">No account? <a href="{% url 'signup' %}">Sign up</a></div>
+</div>
+{% endblock %}
