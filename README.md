@@ -54,5 +54,3 @@ If `DATABASE_URL` is unset, Django falls back to SQLite (`db.sqlite3`). The part
    - `CSRF_TRUSTED_ORIGINS` = `https://your-app.onrender.com`
    - `TIME_ZONE` = whatever fits your users (e.g., `America/Los_Angeles`)
 4. **First deploy** will run migrations automatically via the start command. Visit the URL and sign up.
-
-> The free Render web service spins down after 15 min of inactivity. First request after a sleep takes ~30s; that's a free-tier characteristic, not a bug.
