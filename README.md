@@ -32,6 +32,7 @@ docker compose exec web python manage.py createsuperuser
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env  # then edit DATABASE_URL if you have a local Postgres
 python manage.py migrate
 python manage.py runserver
 ```
