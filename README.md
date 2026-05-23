@@ -1,6 +1,6 @@
 # Lab Hours Tracker
 
-A small Django web app that lets students log lab/study sessions and visualize weekly study patterns on a Chart.js dashboard. Originally built for a CS algorithms study group; now Dockerized for one-command local runs and ready to deploy to Render's free tier.
+A small Django web app that lets students log lab/study sessions and visualize weekly study patterns on a Chart.js dashboard. Originally built for a CS algorithms study group; now Dockerized for one-command local runs.
 
 ## Prerequisites
 
