@@ -56,14 +56,3 @@ If `DATABASE_URL` is unset, Django falls back to SQLite (`db.sqlite3`). The part
 4. **First deploy** will run migrations automatically via the start command. Visit the URL and sign up.
 
 > The free Render web service spins down after 15 min of inactivity. First request after a sleep takes ~30s; that's a free-tier characteristic, not a bug.
-
-## Project layout
-
-```
-config/             Django project (settings, urls, wsgi)
-sessions_app/       The app: model, views, migrations, admin
-templates/          base.html, dashboard.html, login.html, signup.html
-Dockerfile          python:3.12-slim, gunicorn
-docker-compose.yml  web + postgres:16 with healthcheck
-requirements.txt    Django 5.1, psycopg3, gunicorn, whitenoise, dotenv, dj-database-url
-```
