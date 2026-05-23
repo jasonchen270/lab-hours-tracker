@@ -11,22 +11,6 @@ A small Django web app that lets students log lab/study sessions and visualize w
 - Timezone-aware: stores UTC, renders in the configured `TIME_ZONE`
 - Postgres in production (free tier on Render), SQLite fallback if no `DATABASE_URL` is set
 
-## Schema design notes
-
-Sessions are modeled as a **half-open interval `[start_at, end_at)`**. `end_at` is NULL while a session is in progress. This makes "currently open" trivially queryable (`WHERE end_at IS NULL`) and avoids the off-by-one ambiguity at midnight boundaries.
-
-Two database-level guarantees back the model:
-
-1. **`CheckConstraint(end_at IS NULL OR end_at > start_at)`** rejects backwards or zero-duration intervals at insert time, regardless of which layer wrote the row (Django ORM, admin, or `psql`).
-2. **Partial unique index** `WHERE end_at IS NULL` enforces "at most one open session per user" without any application-level locking. See `sessions_app/migrations/0001_initial.py`:
-
-   ```sql
-   CREATE UNIQUE INDEX one_open_session_per_user
-   ON sessions_app_session (user_id) WHERE end_at IS NULL;
-   ```
-
-   This works because Postgres treats partial-index uniqueness like any other unique constraint, but only for rows matching the `WHERE`. Open a second session and the database rejects it (`IntegrityError`), which the view translates to a 400 response.
-
 ## Local dev with Docker Compose
 
 ```bash
@@ -83,9 +67,3 @@ Dockerfile          python:3.12-slim, gunicorn
 docker-compose.yml  web + postgres:16 with healthcheck
 requirements.txt    Django 5.1, psycopg3, gunicorn, whitenoise, dotenv, dj-database-url
 ```
-
-## Known behaviors and gotchas
-
-- **Timezone fix:** Aggregating hours by weekday must `.astimezone(current_tz)` before `.weekday()`. Otherwise a Sunday 11pm Pacific session shows up under Monday in UTC. Fixed in `sessions_app/views.py::dashboard`.
-- **CSV exports UTC.** Localized timestamps in CSVs invite reinterpretation bugs downstream; we export ISO 8601 UTC and let the consumer (Pandas, Excel) localize.
-- **Partial index, not a unique constraint.** Postgres unique constraints treat each NULL as distinct, so a vanilla `UniqueConstraint(user, end_at)` lets multiple open sessions through. The partial index is the right tool.
