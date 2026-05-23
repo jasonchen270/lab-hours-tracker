@@ -2,15 +2,6 @@
 
 A small Django web app that lets students log lab/study sessions and visualize weekly study patterns on a Chart.js dashboard. Originally built for a CS algorithms study group; now Dockerized for one-command local runs and ready to deploy to Render's free tier.
 
-## Features
-
-- Email + password auth (Django's `auth_user`)
-- Start/stop study sessions with optional notes
-- Dashboard with a Chart.js bar chart of hours-by-weekday over the last 8 weeks
-- CSV export of all your sessions (UTC ISO timestamps)
-- Timezone-aware: stores UTC, renders in the configured `TIME_ZONE`
-- Postgres in production (free tier on Render), SQLite fallback if no `DATABASE_URL` is set
-
 ## Local dev with Docker Compose
 
 ```bash
